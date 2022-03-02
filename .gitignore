@@ -1,0 +1,5 @@
+redirector/backup/*
+redirector/lab/*
+redirector/.env
+redirector/config.json
+redirector/key.json

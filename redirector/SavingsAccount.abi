@@ -1,0 +1,301 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "_bankAccountNumber",
+				"type": "string"
+			},
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "_savingsAccountNumber",
+				"type": "string"
+			},
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "transactionType",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "dateIssued",
+						"type": "string"
+					},
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "bankAccountNumber",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "bank",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "savingsAccountNumber",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "timeCreated",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "interestRate",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "savingType",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "savingPeriod",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "savingAmount",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "transactionUnit",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "interestAmount",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "totalReturnAmount",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "timeSettled",
+								"type": "string"
+							}
+						],
+						"internalType": "struct SavingsAccount.SavingsAccountDetails",
+						"name": "accountDetails",
+						"type": "tuple"
+					}
+				],
+				"indexed": false,
+				"internalType": "struct SavingsAccount.SavingsAccountTxn",
+				"name": "_openSavingsAccTxn",
+				"type": "tuple"
+			}
+		],
+		"name": "OpenSavingsAccount",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "_bankAccountNumber",
+				"type": "string"
+			},
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "_savingsAccountNumber",
+				"type": "string"
+			},
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "transactionType",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "dateIssued",
+						"type": "string"
+					},
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "bankAccountNumber",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "bank",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "savingsAccountNumber",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "timeCreated",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "interestRate",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "savingType",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "savingPeriod",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "savingAmount",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "transactionUnit",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "interestAmount",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "totalReturnAmount",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "timeSettled",
+								"type": "string"
+							}
+						],
+						"internalType": "struct SavingsAccount.SavingsAccountDetails",
+						"name": "accountDetails",
+						"type": "tuple"
+					}
+				],
+				"indexed": false,
+				"internalType": "struct SavingsAccount.SavingsAccountTxn",
+				"name": "_settleSavingsAccTxn",
+				"type": "tuple"
+			}
+		],
+		"name": "SettleSavingsAccount",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_bankAccountNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_savingsAccountNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_timeIssued",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_timeCreated",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_savingAmount",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_savingPeriod",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_interestRate",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_savingType",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_transactionUnit",
+				"type": "string"
+			}
+		],
+		"name": "registerSavingsAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_bankAccountNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_savingsAccountNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_timeIssued",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_timeSettled",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_interestAmount",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_totalAmount",
+				"type": "string"
+			}
+		],
+		"name": "settleSavingsAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
