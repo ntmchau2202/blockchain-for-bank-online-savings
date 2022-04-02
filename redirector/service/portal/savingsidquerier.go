@@ -23,7 +23,7 @@ func QueryTxnsBySavingsAccount(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, client.CreateErrorMessage(err.Error()))
 	}
 
-	transaction, err := bcClient.QueryTxnsBySavingsAccount(msg.Details.QueryID)
+	transaction, err := bcClient.QueryTxnsBySavingsAccount(msg.Details["query_id"].(string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, client.CreateErrorMessage(err.Error()))
 	}

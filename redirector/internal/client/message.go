@@ -41,16 +41,7 @@ func (m Message) Validate() (err error) {
 
 type AddSavingsAccountMessage struct {
 	Message
-	Details struct {
-		BankAccountNumber    string `json:"bank_acc_number"`
-		SavingsAccountNumber string `json:"savings_acc_number"`
-		TimeCreated          string `json:"time_created"`
-		InitialAmount        string `json:"initial_amount"`
-		InterestRate         string `json:"interest_rate"` // in float
-		TypeOfSavings        string `json:"type_of_savings"`
-		SavingsPeriod        string `json:"saving_period"` // in months
-		TransactionUnit      string `json:"transaction_unit"`
-	} `json:"details"`
+	Details map[string]interface{} `json:"details"`
 }
 
 func (m AddSavingsAccountMessage) Validate() (err error) {
@@ -63,31 +54,43 @@ func (m AddSavingsAccountMessage) Validate() (err error) {
 		return errors.New("invalid command")
 	}
 
-	if len(m.Details.BankAccountNumber) == 0 {
-		return errors.New("missing bank account number")
-	}
-
-	if len(m.Details.SavingsAccountNumber) == 0 {
+	if len(m.Details["savingsaccount_number"].(string)) == 0 {
 		return errors.New("missing saving account number")
 	}
 
-	if err = validateTime(m.Details.TimeCreated); err != nil {
-		return
+	if len(m.Details["owner_id"].(string)) == 0 {
+		return errors.New("missing owner id")
 	}
 
-	if _, err := strconv.ParseFloat(m.Details.InitialAmount, 64); err != nil {
+	if len(m.Details["owner_phone"].(string)) == 0 {
+		return errors.New("missing customer phone for validation")
+	}
+
+	if len(m.Details["product_type"].(string)) == 0 {
+		return errors.New("missing product type")
+	}
+
+	if _, err := strconv.ParseFloat(m.Details["savings_amount"].(string), 64); err != nil {
 		return errors.New("invalid initial savings amount")
 	}
 
-	if _, err := strconv.ParseFloat(m.Details.InterestRate, 64); err != nil {
-		return errors.New("invalid interest rate")
-	}
-
-	if _, err := strconv.ParseInt(m.Details.SavingsPeriod, 10, 64); err != nil {
+	if _, err := strconv.ParseInt(m.Details["savings_period"].(string), 10, 64); err != nil {
 		return errors.New("invalid saving period")
 	}
 
-	if len(m.Details.TransactionUnit) != 3 || strings.Compare(strings.ToUpper(m.Details.TransactionUnit), m.Details.TransactionUnit) != 0 {
+	if _, err := strconv.ParseFloat(m.Details["interest_rate"].(string), 64); err != nil {
+		return errors.New("invalid interest rate")
+	}
+
+	if _, err := strconv.ParseFloat(m.Details["estimated_interest_amount"].(string), 64); err != nil {
+		return errors.New("invalid estimated insterest amount")
+	}
+
+	if err = validateTime(m.Details["open_time"].(string)); err != nil {
+		return err
+	}
+
+	if len(m.Details["currency"].(string)) != 3 || strings.Compare(strings.ToUpper(m.Details["currency"].(string)), m.Details["currency"].(string)) != 0 {
 		return errors.New("invalid transaction unit format")
 	}
 	return nil
@@ -95,14 +98,7 @@ func (m AddSavingsAccountMessage) Validate() (err error) {
 
 type SettleSavingsAccountMessage struct {
 	Message
-	Details struct {
-		BankAccountNumber    string `json:"bank_acc_number"`
-		SavingsAccountNumber string `json:"savings_acc_number"`
-		TimeSettled          string `json:"time_settled"`
-		InterestAmount       string `json:"interst_amount"`
-		TotalAmount          string `json:"total_amount"` // total balance = initial + interest
-		TransactionUnit      string `json:"transaction_unit"`
-	} `json:"details"`
+	Details map[string]interface{} `json:"details"`
 }
 
 func (m SettleSavingsAccountMessage) Validate() (err error) {
@@ -110,52 +106,36 @@ func (m SettleSavingsAccountMessage) Validate() (err error) {
 		return
 	}
 
-	if m.Details == struct {
-		BankAccountNumber    string "json:\"bank_acc_number\""
-		SavingsAccountNumber string "json:\"savings_acc_number\""
-		TimeSettled          string "json:\"time_settled\""
-		InterestAmount       string "json:\"interst_amount\""
-		TotalAmount          string "json:\"total_amount\""
-		TransactionUnit      string "json:\"transaction_unit\""
-	}{} {
-		return errors.New("missing details")
-	}
-
 	if strings.Compare(m.Message.Command, SettleSavingsAccountCmd.ToString()) != 0 {
 		return errors.New("invalid command")
 	}
 
-	if len(m.Details.BankAccountNumber) == 0 {
-		return errors.New("missing bank account number")
+	if len(m.Details["savingsaccount_id"].(string)) == 0 {
+		return errors.New("missing savings account id")
 	}
 
-	if len(m.Details.SavingsAccountNumber) == 0 {
-		return errors.New("missing saving account number")
+	if len(m.Details["owner_id"].(string)) == 0 {
+		return errors.New("missing owner id")
 	}
 
-	if err = validateTime(m.Details.TimeSettled); err != nil {
-		return
+	if len(m.Details["owner_phone"].(string)) == 0 {
+		return errors.New("missing owner phone for validation")
 	}
 
-	if _, err := strconv.ParseFloat(m.Details.InterestAmount, 64); err != nil {
-		return errors.New("invalid interest amount")
+	if len(m.Details["actual_interest_amount"].(string)) == 0 {
+		return errors.New("missing actual interest amount")
 	}
 
-	if _, err := strconv.ParseFloat(m.Details.TotalAmount, 64); err != nil {
-		return errors.New("invalid total returned amount")
+	if err = validateTime(m.Details["settle_time"].(string)); err != nil {
+		return err
 	}
 
-	if len(m.Details.TransactionUnit) != 3 || strings.Compare(strings.ToUpper(m.Details.TransactionUnit), m.Details.TransactionUnit) != 0 {
-		return errors.New("invalid transaction unit format")
-	}
 	return nil
 }
 
 type QueryMessage struct {
 	Message
-	Details struct {
-		QueryID string `json:"query_id"`
-	} `json:"details"`
+	Details map[string]interface{} `json:"details"`
 }
 
 func (m QueryMessage) Validate() (err error) {
@@ -167,13 +147,7 @@ func (m QueryMessage) Validate() (err error) {
 		return errors.New("invalid command")
 	}
 
-	if m.Details == struct {
-		QueryID string "json:\"query_id\""
-	}{} {
-		return errors.New("missing details")
-	}
-
-	if len(m.Details.QueryID) == 0 {
+	if len(m.Details["query_id"].(string)) == 0 {
 		return errors.New("missing query key")
 	}
 

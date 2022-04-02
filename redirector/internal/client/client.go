@@ -73,15 +73,17 @@ func (bc BlockchainClient) SaveSavingsAccountCreation(message AddSavingsAccountM
 		tx, err := bc.buildTx(
 			opts,
 			"registerSavingsAccount",
-			message.Details.BankAccountNumber,
-			message.Details.SavingsAccountNumber,
-			time.Now().String(), // time issued
-			message.Details.TimeCreated,
-			message.Details.InitialAmount,
-			message.Details.SavingsPeriod,
-			message.Details.InterestRate,
-			message.Details.TypeOfSavings,
-			message.Details.TransactionUnit,
+			message.Details["savingsaccount_number"].(string),
+			message.Details["owner_id"].(string),
+			message.Details["product_type"].(string),
+			message.Details["savings_period"].(string),
+			message.Details["interest_rate"].(string),
+			message.Details["savings_amount"].(string),
+			message.Details["estimated_interest_amount"].(string),
+			message.Details["open_time"].(string), // time issued
+			message.Details["settle_instruction"].(string),
+			message.Details["currency"].(string),
+			message.Details["bank_name"].(string),
 		)
 		if err != nil {
 			return nil, err
@@ -103,12 +105,11 @@ func (bc BlockchainClient) SaveSavingsAccountSettlement(message SettleSavingsAcc
 		tx, err := bc.buildTx(
 			opts,
 			"settleSavingsAccount",
-			message.Details.BankAccountNumber,
-			message.Details.SavingsAccountNumber,
-			time.Now().String(), // time issued,
-			message.Details.TimeSettled,
-			message.Details.InterestAmount,
-			message.Details.TotalAmount,
+			message.Details["savingsaccount_number"],
+			message.Details["owner_id"],
+			message.Details["settle_time"],
+			message.Details["actual_interest_amount"],
+			message.Details["bank_name"],
 		)
 		if err != nil {
 			return nil, err
@@ -116,7 +117,6 @@ func (bc BlockchainClient) SaveSavingsAccountSettlement(message SettleSavingsAcc
 			return bc.signAndBroadcast(tx, bc.signer)
 		}
 	}
-	return
 }
 
 // func (bc BlockchainClient) GetTransactionsOnBankAccount(bankAccount string) (trueResult []interface{}, err error) {
