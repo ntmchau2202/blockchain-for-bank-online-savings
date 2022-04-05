@@ -283,10 +283,10 @@ func (self *BlockchainClient) signAndBroadcast(tx *types.Transaction, singer *si
 }
 
 // TODO: rewrite this to receive event name
-func parseEvt(contractABI abi.ABI, data []byte) (result interface{}, err error) {
+func parseEvt(contractABI abi.ABI, evtName string, data []byte) (result interface{}, err error) {
 	result = make(map[string]interface{})
 	tmp := make(map[string]interface{})
-	err = contractABI.UnpackIntoMap(tmp, "OpenSavingsAccount", data)
+	err = contractABI.UnpackIntoMap(tmp, evtName, data)
 	if err == nil {
 		result = tmp["_openSavingsAccTxn"].(interface{})
 		fmt.Println(result, "===============")
@@ -331,7 +331,7 @@ func (bc BlockchainClient) QueryTxnsByBankAccount(bankAcc string) (fullResult []
 	return fullResult, nil
 }
 
-func (bc BlockchainClient) QueryTxnsBySavingsAccount(savingsAcc string) (fullResult []interface{}, err error) {
+func (bc BlockchainClient) QueryTxnsBySavingsAccount(savingsAcc string) (resp message.Response, err error) {
 
 	ethClient := bc.GetETHClent()
 	savingsAccCrypted := ethereum.BytesToHash(crypto.Keccak256([]byte(savingsAcc)))

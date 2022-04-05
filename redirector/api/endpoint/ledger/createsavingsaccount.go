@@ -61,10 +61,11 @@ func CreateSavingsAccount(c *gin.Context) {
 
 	transaction, err := bcClient.SaveSavingsAccountCreation(msg)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, client.CreateErrorMessage(err.Error()))
+		c.JSON(http.StatusInternalServerError, endpoint.CreateErrorMessage(err.Error()))
 		log.Panic(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, client.CreateSuccessMessage(transaction))
+	// TODO: fill in this blank space
+	c.JSON(http.StatusOK, endpoint.CreateSuccessMessage(transaction))
 }
