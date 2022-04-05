@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gr-blockchain-side/internal/blockchain/signer"
 	"gr-blockchain-side/internal/config"
+	"gr-blockchain-side/internal/message"
 	"log"
 	"math/big"
 
@@ -63,7 +64,7 @@ func (bc BlockchainClient) GetETHClent() (c *ethclient.Client) {
 	return bc.ethClient
 }
 
-func (bc BlockchainClient) SaveSavingsAccountCreation(message AddSavingsAccountMessage) (trueResult *types.Transaction, err error) {
+func (bc BlockchainClient) SaveSavingsAccountCreation(msg message.Request) (resp message.Response, err error) {
 	opts, cancel, err := bc.getTxnOpts()
 	defer cancel()
 
@@ -72,18 +73,19 @@ func (bc BlockchainClient) SaveSavingsAccountCreation(message AddSavingsAccountM
 	} else {
 		tx, err := bc.buildTx(
 			opts,
-			"registerSavingsAccount",
-			message.Details["savingsaccount_number"].(string),
-			message.Details["owner_id"].(string),
-			message.Details["product_type"].(string),
-			message.Details["savings_period"].(string),
-			message.Details["interest_rate"].(string),
-			message.Details["savings_amount"].(string),
-			message.Details["estimated_interest_amount"].(string),
-			message.Details["open_time"].(string), // time issued
-			message.Details["settle_instruction"].(string),
-			message.Details["currency"].(string),
-			message.Details["bank_name"].(string),
+			// TODO: fill in the proper arguments
+			// "registerSavingsAccount",
+			// message.Details["savingsaccount_number"].(string),
+			// message.Details["owner_id"].(string),
+			// message.Details["product_type"].(string),
+			// message.Details["savings_period"].(string),
+			// message.Details["interest_rate"].(string),
+			// message.Details["savings_amount"].(string),
+			// message.Details["estimated_interest_amount"].(string),
+			// message.Details["open_time"].(string), // time issued
+			// message.Details["settle_instruction"].(string),
+			// message.Details["currency"].(string),
+			// message.Details["bank_name"].(string),
 		)
 		if err != nil {
 			return nil, err
@@ -94,7 +96,7 @@ func (bc BlockchainClient) SaveSavingsAccountCreation(message AddSavingsAccountM
 	return
 }
 
-func (bc BlockchainClient) SaveSavingsAccountSettlement(message SettleSavingsAccountMessage) (trueResult *types.Transaction, err error) {
+func (bc BlockchainClient) SaveSavingsAccountSettlement(msg message.Request) (resp message.Response, err error) {
 	opts, cancel, err := bc.getTxnOpts()
 	defer cancel()
 
@@ -105,11 +107,12 @@ func (bc BlockchainClient) SaveSavingsAccountSettlement(message SettleSavingsAcc
 		tx, err := bc.buildTx(
 			opts,
 			"settleSavingsAccount",
-			message.Details["savingsaccount_number"],
-			message.Details["owner_id"],
-			message.Details["settle_time"],
-			message.Details["actual_interest_amount"],
-			message.Details["bank_name"],
+			// TODO: fill in the proper values
+			// message.Details["savingsaccount_number"],
+			// message.Details["owner_id"],
+			// message.Details["settle_time"],
+			// message.Details["actual_interest_amount"],
+			// message.Details["bank_name"],
 		)
 		if err != nil {
 			return nil, err
@@ -279,6 +282,7 @@ func (self *BlockchainClient) signAndBroadcast(tx *types.Transaction, singer *si
 	}
 }
 
+// TODO: rewrite this to receive event name
 func parseEvt(contractABI abi.ABI, data []byte) (result interface{}, err error) {
 	result = make(map[string]interface{})
 	tmp := make(map[string]interface{})

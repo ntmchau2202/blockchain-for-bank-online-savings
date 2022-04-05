@@ -1,8 +1,8 @@
 package api
 
 import (
-	"gr-blockchain-side/service/ledger"
-	"gr-blockchain-side/service/portal"
+	"gr-blockchain-side/api/endpoint/ledger"
+	"gr-blockchain-side/api/endpoint/portal"
 
 	"github.com/gin-gonic/gin"
 )
