@@ -12,3 +12,5 @@ type Bank struct {
 }
 
 var ListBank map[string]*Bank = make(map[string]*Bank)
+
+

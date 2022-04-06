@@ -7,7 +7,7 @@ import (
 )
 
 type BlockchainClient struct {
-	clientABI abi.ABI
 	rpcClient *rpc.Client
 	ethClient *ethclient.Client
+	clientABI abi.ABI
 }
