@@ -19,7 +19,7 @@ func NewSignerWithChainID(privateKeyPath string, chainId int64) (s *Signer, err 
 	if err != nil {
 		return
 	}
-	rawPrivateKey := data["key"]
+	rawPrivateKey := data["private_key"]
 	privateKey, err := crypto.HexToECDSA(rawPrivateKey)
 	if err != nil {
 		return

@@ -1,7 +1,7 @@
 package bank
 
 import (
-	"blockchain-server/internal/blockchain/client"
+	"blockchain-server/internal/models/blockchain/client"
 
 	"github.com/ethereum/go-ethereum/common"
 )

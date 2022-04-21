@@ -4,6 +4,7 @@ import (
 	"blockchain-server/internal/models/blockchain/signer"
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"os"
 	"time"
@@ -120,8 +121,9 @@ func (c *BlockchainClient) Call(
 
 	callOpts, _, _ := c.getTxnOpts()
 	txn := BuildCall(callOpts, c.txnSigner.GetOwner(), common.HexToAddress(toAddress), data)
-
-	result, err := c.ethClient.CallContract(context.Background(), txn, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), timeOutThreshold)
+	defer cancel()
+	result, err := c.ethClient.CallContract(ctx, txn, nil)
 	if err != nil {
 		return
 	}
@@ -145,7 +147,21 @@ func (c *BlockchainClient) Send(
 	ptrToAddress := common.HexToAddress(toAddress)
 	callOpts, _, _ := c.getTxnOpts()
 
+	estimatedGas, err := c.ethClient.EstimateGas(context.Background(), BuildCall(
+		callOpts,
+		c.txnSigner.GetOwner(),
+		ptrToAddress,
+		data,
+	))
+
+	if err != nil {
+		return
+	}
+
+	callOpts.GasLimit = estimatedGas
+
 	txn := BuildTxn(callOpts, ptrToAddress, data)
+
 	signedTxn, err := c.txnSigner.Sign(txn)
 	if err != nil {
 		return
@@ -156,20 +172,20 @@ func (c *BlockchainClient) Send(
 		return
 	}
 
-	receipt, err := c.ethClient.TransactionReceipt(context.Background(), txn.Hash())
-	if err != nil {
-		return
-	}
-
 	unpacked = make(map[string]interface{})
-	receivedData, err := receipt.MarshalBinary()
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeOutThreshold)
+	defer cancel()
+
+	receipt, err := c.ethClient.TransactionReceipt(ctx, signedTxn.Hash())
 	if err != nil {
 		return
 	}
 
-	unpacked["transaction_id"] = txn.Hash()
+	unpacked["transaction_hash"] = receipt.TxHash
 	unpacked["block_number"] = receipt.BlockNumber
-	unpacked["post_state"] = receipt.PostState
-	unpacked["data"] = receivedData
+	unpacked["block_hash"] = receipt.BlockHash
+	fmt.Println("receipt:", receipt)
+
 	return
 }
