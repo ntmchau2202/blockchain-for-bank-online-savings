@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 import "./Ownable.sol";
 
 contract BankFactory is Ownable {
-    mapping (address => address) private listBankAddress;
-    mapping (string => address) private listBank;
+    mapping (address => Bank) private listBankEntities; // bank contract addr to Bank entity
+    mapping (address => address) private listBankAddress; // bank wallet addr to bank contract addr
+    mapping (string => address) private listBank; // bankID to bankID wallet
 
     constructor() {
         transferOwnership(msg.sender);
@@ -34,6 +35,7 @@ contract BankFactory is Ownable {
         );
         listBankAddress[_bankOwner] = address(newBank);
         listBank[_bankID] = _bankOwner;
+        listBankEntities[address(newBank)] = newBank;
         emit NewBank(_bankOwner, listBankAddress[_bankOwner], _bankID, _bankName, _bankID, listBankAddress[_bankOwner], block.timestamp);
         return listBankAddress[_bankOwner];
     }
@@ -44,12 +46,42 @@ contract BankFactory is Ownable {
         return listBankAddress[listBank[_bankID]];
     }
 
+    event DeactivateBank(
+        address indexed _bankContractAddressI,
+        address _bankContractAddress,
+        uint time
+    );
+
+    event ActivateBank(
+        address indexed _bankContractAddressI,
+        address _bankContractAddress,
+        uint time
+    );
+
+    function deactivateBankContract(
+        string memory _bankID
+    ) public onlyOwner {
+        address bankContractAddress = listBank[_bankID];
+        require(bankContractAddress != address(0x0), "Error: bank does not exist");
+        Bank bankEntity = listBankEntities[bankContractAddress];
+        bankEntity.deactivateBank();
+    }
+
+    function activateBankContract(
+        string memory _bankID
+    ) public onlyOwner {
+        address bankContractAddress = listBank[_bankID];
+        require(bankContractAddress != address(0x0), "Error: bank does not exist");
+        Bank bankEntity = listBankEntities[bankContractAddress];
+        bankEntity.activateBank();
+    }
 }
 
 contract Bank is Ownable {
     struct User {
         address userAddress;
-        string bankID;
+        string userID;
+        bool activate;
     }
 
     // enum TransactionsType {
@@ -61,7 +93,7 @@ contract Bank is Ownable {
     string private bankName;
     string private bankID;
     address private factory;
-
+    bool private activate;
 
     constructor(
         address _bankOwner,
@@ -71,7 +103,22 @@ contract Bank is Ownable {
         transferOwnership(_bankOwner);
         bankName = _bankName;
         bankID = _bankID;
+        activate = true;
         factory = msg.sender;
+    }
+
+    function activateBank() external {
+        require(msg.sender == factory, "Error: function must be called by factory");
+        activate = false;
+    }
+
+    function deactivateBank() external {
+        require(msg.sender == factory, "Error: function must be called by factory");
+        activate = true;
+    }
+
+    function isActivated() public view returns (bool) {
+        return activate;
     }
 
     function getBankName() external view returns (string memory) {
@@ -92,9 +139,10 @@ contract Bank is Ownable {
     }
 
     function addUser (
-        address _userAddress
+        address _userAddress,
+        string memory _userID
     ) external onlyOwner {
-        User memory newUser = User(_userAddress, bankID);
+        User memory newUser = User(_userAddress, _userID, true);
         listUser[_userAddress] = newUser;
         emit NewUser(_userAddress, block.timestamp);
     }
@@ -118,6 +166,7 @@ contract Bank is Ownable {
         bytes32 s;
         uint8 v;
         address customerAddress = address(0x0);
+        address bankAddress = address(0x0);
         for (uint256 i = 0; i < signature.length; i++) {
             bytes memory currentSignature = signature[i];
             assembly {
@@ -143,9 +192,13 @@ contract Bank is Ownable {
 
                 if (isMember(usr.userAddress)) {
                     customerAddress = usr.userAddress;
+                } else {
+                    bankAddress = recovered;
                 }
             }
         }
+        require(customerAddress != bankAddress && customerAddress != address(0x0) && bankAddress != address(0x0),
+                "Error: missing signature");
         return (true, customerAddress);
     }
 
@@ -162,12 +215,54 @@ contract Bank is Ownable {
         bytes _firstSignature,
         bytes _secondSignature
     );
+    
+    event DeactivateCustomer(
+        address indexed _customerAddressI,
+        address _customerAddress,
+        uint time
+    );
+
+    event ActivateCustomer(
+        address indexed _customerAddressI,
+        address _customerAddress,
+        uint time
+    );
+
+    function activateCustomer(
+        address _customerAddress
+    ) public onlyOwner {
+        require(_customerAddress != address(0x0), "Error: Zero value not allowed");
+        User memory user = listUser[_customerAddress];
+        require(isMember(user.userAddress), "Error: address is not member of bank");
+        user.activate = true;
+        emit ActivateCustomer(
+            _customerAddress,
+            _customerAddress,
+            block.timestamp
+        );
+    }
+
+    function deactivateCustomer(
+        address _customerAddress
+    ) public onlyOwner {
+        require(_customerAddress != address(0x0), "Error: Zero value not allowed");
+        User memory user = listUser[_customerAddress];
+        require(isMember(user.userAddress), "Error: address is not member of bank");
+        user.activate = false;
+        emit ActivateCustomer(
+            _customerAddress,
+            _customerAddress,
+            block.timestamp
+        );
+    }
 
     function BroadcastOpenAccountTransaction(
         address _customerAddress,
         bytes32 _hash,
         bytes[2] memory _signatures
     ) public {
+        require(isActivated(), "Error: contract has been deactivated");
+        require(msg.sender == _customerAddress, "Error: requester and owner mismatch");
         bool valid = false;
         address customerAddress = address(0x0);
         (valid, customerAddress) = verifyUser(_hash, _signatures);
@@ -186,6 +281,8 @@ contract Bank is Ownable {
         bytes32 _hash,
         bytes[2] memory _signatures
     ) public {
+        require(isActivated(), "Error: contract has been deactivated");
+        require(msg.sender == _customerAddress, "Error: requester and savings account owner mismatch");
         bool valid = false;
         address customerAddress = address(0x0);
         (valid, customerAddress) = verifyUser(_hash, _signatures);
