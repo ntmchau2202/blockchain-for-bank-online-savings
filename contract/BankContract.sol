@@ -90,6 +90,7 @@ contract Bank is Ownable {
     // }
 
     mapping (address => User) private listUser;
+    User[] users;
     string private bankName;
     string private bankID;
     address private factory;
@@ -143,8 +144,20 @@ contract Bank is Ownable {
         string memory _userID
     ) external onlyOwner {
         User memory newUser = User(_userAddress, _userID, true);
+        users.push(newUser);
         listUser[_userAddress] = newUser;
         emit NewUser(_userAddress, block.timestamp);
+    }
+
+    function findUser(
+        string memory userID 
+    ) public view returns (bool) {
+        for(uint256 i = 0; i < users.length; i++) {
+            if (keccak256(bytes(users[i].userID)) == keccak256(bytes(userID))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function isMember(
